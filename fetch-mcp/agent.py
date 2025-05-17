@@ -184,7 +184,7 @@ class MedicalResearchMCPClient:
 
 # Initialize chat protocol and agent
 chat_proto = Protocol(spec=chat_protocol_spec)
-mcp_agent = Agent(name='medical-research-MCPagent', port=8001, mailbox=True)
+mcp_agent = Agent(name='web-search-MCPagent', port=8001, mailbox=True)
 client = MedicalResearchMCPClient()
 
 @chat_proto.on_message(model=ChatMessage)
