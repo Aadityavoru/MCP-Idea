@@ -2,3 +2,6 @@
 */__pycache__/
 fetch-mcp/private_keys.json
 fetch-mcp/.env
+frontend/node_modules
+src/.DS_Store
+src/.DS_Store
