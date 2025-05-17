@@ -1,0 +1,3 @@
+uagents
+mcp
+python-dotenv
