@@ -5,18 +5,12 @@ import {
   Geography,
   ZoomableGroup
 } from "react-simple-maps";
-import { mockStateResponses } from '../data/stateResponses';
 
 // USA GeoJSON map data
 const geoUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 
 const USAMap = ({ onStateClick, isVisible }) => {
   const [hoveredState, setHoveredState] = useState(null);
-  
-  const getStateMainTopic = (stateName) => {
-    const stateData = mockStateResponses[stateName] || mockStateResponses.default;
-    return stateData.mainTopic;
-  };
   
   return (
     <div className={`map-container ${isVisible ? 'map-visible' : 'map-hidden'}`}>
@@ -80,8 +74,7 @@ const USAMap = ({ onStateClick, isVisible }) => {
       {hoveredState && (
         <div className="map-tooltip">
           <div className="tooltip-state">{hoveredState}</div>
-          <div className="tooltip-topic">{getStateMainTopic(hoveredState)}</div>
-          <div className="tooltip-hint">Click for details</div>
+          <div className="tooltip-hint">Click to analyze news</div>
         </div>
       )}
     </div>

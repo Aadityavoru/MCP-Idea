@@ -7,36 +7,51 @@ import RecentArticles from './components/RecentArticles';
 import USAMap from './components/USAMap';
 import StateResponse from './components/StateResponse';
 import Modal from './components/Modal';
+import LoadingSpinner from './components/LoadingSpinner';
 
 // Import data sources
 import { mockNewsArticles } from './data/newsArticles';
-import { mockStateResponses } from './data/stateResponses';
+
+// Import API service
+import { fetchNewsAnalysis } from './services/newsService';
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showMap, setShowMap] = useState(false);
   const [selectedState, setSelectedState] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [stateNewsData, setStateNewsData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   
   const handleSearch = (query) => {
     setSearchQuery(query);
     setShowMap(true);
   };
   
-  const handleStateClick = (stateName) => {
+  const handleStateClick = async (stateName) => {
     setSelectedState(stateName);
-    setIsModalOpen(true);
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await fetchNewsAnalysis(searchQuery, stateName);
+      setStateNewsData(result.data);
+      setIsModalOpen(true);
+    } catch (err) {
+      setError(`Failed to load news for ${stateName}: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const closeModal = () => {
     setIsModalOpen(false);
     // Don't clear selectedState immediately to avoid animation issues
-    setTimeout(() => setSelectedState(null), 300);
-  };
-  
-  // Get state response data
-  const getStateResponseData = (stateName) => {
-    return mockStateResponses[stateName] || mockStateResponses.default;
+    setTimeout(() => {
+      setSelectedState(null);
+      setStateNewsData(null);
+    }, 300);
   };
   
   return (
@@ -53,17 +68,29 @@ function App() {
       {!searchQuery ? (
         <RecentArticles articles={mockNewsArticles} />
       ) : (
-        <USAMap 
-          onStateClick={handleStateClick} 
-          isVisible={showMap}
-        />
+        <>
+          <USAMap 
+            onStateClick={handleStateClick} 
+            isVisible={showMap && !isLoading}
+          />
+          
+          {isLoading && <LoadingSpinner />}
+          
+          {error && (
+            <div className="error-message">
+              <p>{error}</p>
+              <button onClick={() => setError(null)}>Dismiss</button>
+            </div>
+          )}
+        </>
       )}
       
-      {selectedState && (
+      {selectedState && stateNewsData && (
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <StateResponse 
-            data={getStateResponseData(selectedState)}
+            data={stateNewsData}
             stateName={selectedState}
+            searchTopic={searchQuery}
             onClose={closeModal}
           />
         </Modal>
