@@ -1,12 +1,18 @@
 from typing import Any
 import httpx
 from mcp.server.fastmcp import FastMCP
+from exa_py import Exa
+import json
 
 # Create a FastMCP server instance
 mcp = FastMCP("weather")
 
 NWS_API_BASE = "https://api.weather.gov"
 USER_AGENT = "weather-app/1.0"
+EXA_API_KEY = "f1ee87a5-5db0-4884-a3d1-4d3915cb7471"
+
+# Initialize Exa client
+exa_client = Exa(api_key=EXA_API_KEY)
 
 async def make_nws_request(url: str) -> dict[str, Any] | None:
     headers = {
@@ -63,6 +69,98 @@ async def get_forecast(latitude: float, longitude: float) -> str:
         forecasts.append(forecast)
 
     return "\n---\n".join(forecasts)
+
+@mcp.tool()
+async def analyze_climate_news(query: str, num_results: int = 5, start_year: int = 2020) -> str:
+    """
+    Analyze news articles about climate policies based on a text prompt.
+    
+    Args:
+        query: A specific query about climate policies or environmental initiatives
+        num_results: Number of results to return (1-10)
+        start_year: The starting year for the search (default 2020)
+    
+    Returns:
+        Analysis of news articles with structured information about climate policies
+    """
+    try:
+        # Build the schema for structured policy information
+        schema = {
+            "type": "object",
+            "properties": {
+                "country": {"type": "string"},
+                "policy_name": {"type": "string"},
+                "year": {"type": "integer"},
+                "goals": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                },
+                "key_measures": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                }
+            }
+        }
+        
+        # Set the date string
+        start_date = f"{start_year}-01-01T00:00:00.000Z"
+        
+        # Cap num_results between 1 and 10
+        num_results = max(1, min(10, num_results))
+        
+        # Make the Exa API call
+        result = exa_client.search_and_contents(
+            query,
+            type="auto",
+            category="news",
+            num_results=num_results,
+            start_published_date=start_date,
+            text={"max_characters": 500},
+            summary={
+                "query": "What are the main policies implemented?",
+                "schema": schema
+            }
+        )
+        
+        # Format the results
+        formatted_results = []
+        
+        for i, item in enumerate(result.results):
+            article_info = f"## Article {i+1}: {item.title}\n"
+            article_info += f"Source: {item.url}\n"
+            article_info += f"Published: {item.published_date}\n\n"
+            
+            # Add text snippet
+            if hasattr(item, 'text') and item.text:
+                article_info += f"Excerpt: {item.text}\n\n"
+            
+            # Add structured summary if available
+            if hasattr(item, 'summary') and item.summary:
+                summary = item.summary
+                article_info += "### Policy Analysis:\n"
+                if hasattr(summary, 'country') and summary.country:
+                    article_info += f"Country: {summary.country}\n"
+                if hasattr(summary, 'policy_name') and summary.policy_name:
+                    article_info += f"Policy: {summary.policy_name}\n"
+                if hasattr(summary, 'year') and summary.year:
+                    article_info += f"Year: {summary.year}\n"
+                
+                if hasattr(summary, 'goals') and summary.goals:
+                    article_info += "Goals:\n"
+                    for goal in summary.goals:
+                        article_info += f"- {goal}\n"
+                    
+                if hasattr(summary, 'key_measures') and summary.key_measures:
+                    article_info += "Key Measures:\n"
+                    for measure in summary.key_measures:
+                        article_info += f"- {measure}\n"
+            
+            formatted_results.append(article_info)
+        
+        return "\n\n---\n\n".join(formatted_results)
+    
+    except Exception as e:
+        return f"Error analyzing climate news: {str(e)}"
 
 
 if __name__ == "__main__":
