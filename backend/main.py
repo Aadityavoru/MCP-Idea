@@ -20,6 +20,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 exa_client = Exa(EXA_API_KEY)
 openai_client = None
 try:
