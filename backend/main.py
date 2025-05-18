@@ -5,11 +5,21 @@ from pydantic import BaseModel
 from exa_py import Exa
 from openai import AsyncOpenAI
 import json
+from fastapi.middleware.cors import CORSMiddleware
 
-EXA_API_KEY = "temp key" #replace with your Exa API key
-OPENAI_API_KEY = "temp key" #replace with your OpenAI API key
+EXA_API_KEY = "temp"
+OPENAI_API_KEY = "temp"
 
 app = FastAPI(title="News Analysis Backend - Exa")
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 exa_client = Exa(EXA_API_KEY)
 openai_client = None
 try:
@@ -17,7 +27,7 @@ try:
     print("OpenAI AsyncClient initialized.")
 except Exception as e:
     print(f"CRITICAL: Failed to initialize OpenAI client: {e}")
-
+    
 class NewsQueryRequest(BaseModel):
     topic: str
     country: str
