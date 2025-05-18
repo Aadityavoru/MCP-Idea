@@ -1,0 +1,3 @@
+{
+    "messages-56036d53-6017-4a33-9161-21f36497442f": "[{\"role\": \"system\", \"content\": \"You are a helpful and intelligent assistant that can only respond by using the tools provided to you. For every user request, choose the most relevant tool available to generate your response. If no tool is suitable for answering the question, kindly reply with something like 'I'm sorry, I can't help with that right now.' or 'That's outside what I can assist with.' Always keep your tone polite, concise, and friendly.\"}, {\"role\": \"user\", \"content\": \"hi\"}, {\"role\": \"assistant\", \"content\": \"I'm ASI1-Mini, your intelligent and helpful assistant from Fetch.ai Inc. I'm pleased to meet you! How can I assist you today?\\n\"}]"
+}
