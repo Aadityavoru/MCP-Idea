@@ -56,18 +56,3 @@ Proud to have won **Second Place** at the **AGI House** competition, recognized 
 - Agents handle scraping, sentiment analysis, summarization, and prediction collaboratively  
 - Modular and extensible architecture supports new data sources, models, and output formats  
 
----
-
-## Contributing
-
-Contributions and suggestions are welcome! Please open issues or submit pull requests to improve functionality or add features.
-
----
-
-## License
-
-[Specify your license here, e.g., MIT License]
-
----
-
-**Web Search AI Assistant — enabling smarter decisions through advanced, automated intelligence.**
